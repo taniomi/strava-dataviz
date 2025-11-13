@@ -4,4 +4,32 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "dlt[databricks]>=1.18.2",
+    "requests>=2.32.5",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.1.0",
+    "ruff>=0.14.4",
+]
+
+[tool.ruff]
+line-length = 88
+fix = true
+lint.select = ["ALL"]
+lint.ignore = ["D203", "D213", "COM812", "ERA001"]
+
+[tool.ruff.format]
+quote-style = "double"
+docstring-code-format = true
+
+[tool.uv.sources]
+atter = { git = "https://github.com/atter-data/atter-lib.git", rev = "main" }
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
