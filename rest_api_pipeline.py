@@ -1,3 +1,10 @@
+# Databricks notebook source  # noqa: D100, INP001
+# MAGIC %md
+# MAGIC # Setup
+
+# COMMAND ----------
+# DBTITLE 1,Imports
+import logging
 from typing import Any, Optional
 
 import dlt
@@ -9,7 +16,14 @@ from dlt.sources.rest_api import (
     rest_api_source,
 )
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+# omit databricks message "Received command c on object id p0"
+logging.getLogger("py4j").setLevel(logging.ERROR)
 
+
+# COMMAND ----------
+# DBTITLE 1,DLT source
 @dlt.source(name="github")
 def github_source(access_token: Optional[str] = dlt.secrets.value) -> Any:
     # Create a REST API configuration for the GitHub API
@@ -97,7 +111,7 @@ def github_source(access_token: Optional[str] = dlt.secrets.value) -> Any:
 def load_github() -> None:
     pipeline = dlt.pipeline(
         pipeline_name="rest_api_github",
-        destination='databricks',
+        destination="databricks",
         dataset_name="rest_api_data",
     )
 
@@ -108,7 +122,7 @@ def load_github() -> None:
 def load_pokemon() -> None:
     pipeline = dlt.pipeline(
         pipeline_name="rest_api_pokemon",
-        destination='databricks',
+        destination="databricks",
         dataset_name="rest_api_data",
     )
 
@@ -125,9 +139,14 @@ def load_pokemon() -> None:
                         "limit": 1000,
                     },
                 },
+                "write_disposition": "replace",
             },
             "resources": [
-                "pokemon",
+                {
+                    "name": "pokemon",
+                    "primary_key": "name",
+                    "write_disposition": "merge",
+                },
                 "berry",
                 "location",
             ],
@@ -149,6 +168,10 @@ def load_pokemon() -> None:
     print(load_info)  # noqa: T201
 
 
+# COMMAND ----------
+# DBTITLE 1,
 if __name__ == "__main__":
     load_github()
     load_pokemon()
+
+# COMMAND ----------
