@@ -1,14 +1,37 @@
-# Databricks notebook source  # noqa: D100, INP001
+# Databricks notebook source
 # MAGIC %md
 # MAGIC # Setup
 
 # COMMAND ----------
+
+# DBTITLE 1,Install dlt
+# First of all, install dlt
+%pip install dlt[databricks]>=1.18.2
+
+# Now we restart the kernel
+%restart_python
+
+# COMMAND ----------
+
+# DBTITLE 1,Import dlt
+import sys
+
+# dlt patching hook is the first one on the list
+metas = list(sys.meta_path)
+sys.meta_path = metas[1:]
+
+import dlt
+sys.meta_path = metas  # restore post import hooks
+
+# COMMAND ----------
+
 # DBTITLE 1,Imports
 import logging
 from typing import Any, Optional
 
 import dlt
 from dlt.common.pendulum import pendulum
+from dlt.destinations import databricks
 from dlt.sources.rest_api import (
     RESTAPIConfig,
     check_connection,
@@ -23,6 +46,12 @@ logging.getLogger("py4j").setLevel(logging.ERROR)
 
 
 # COMMAND ----------
+
+# MAGIC %md
+# MAGIC # Main
+
+# COMMAND ----------
+
 # DBTITLE 1,DLT source
 @dlt.source(name="github")
 def github_source(access_token: Optional[str] = dlt.secrets.value) -> Any:
@@ -169,9 +198,7 @@ def load_pokemon() -> None:
 
 
 # COMMAND ----------
-# DBTITLE 1,
+
 if __name__ == "__main__":
     load_github()
     load_pokemon()
-
-# COMMAND ----------
